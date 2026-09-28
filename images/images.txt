@@ -1,0 +1,7 @@
+# class  source-ref                                      dest-repo
+10MB   docker.io/library/registry:2                     bench/registry
+10MB   docker.io/library/haproxy:3.0-alpine             bench/haproxy
+100MB  docker.io/library/eclipse-temurin:21-jre         bench/eclipse-temurin
+100MB  docker.io/library/node:22-slim                   bench/node
+1GB    docker.io/selenium/standalone-chrome:latest      bench/standalone-chrome
+1GB    docker.io/library/sonarqube:10-community         bench/sonarqube

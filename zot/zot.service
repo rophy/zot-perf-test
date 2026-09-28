@@ -1,0 +1,16 @@
+[Unit]
+Description=zot registry
+After=network-online.target var-lib-zot.mount
+Wants=network-online.target
+Requires=var-lib-zot.mount
+
+[Service]
+Type=simple
+Environment=GOMEMLIMIT=24GiB
+Environment=AWS_REGION=us-east-1
+ExecStart=/usr/local/bin/zot serve /etc/zot/config.json
+Restart=on-failure
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target

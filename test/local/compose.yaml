@@ -1,0 +1,23 @@
+name: ccdn-local
+services:
+  upstream:
+    image: registry:2
+    ports: ["15001:5000"]
+  zot:
+    image: ghcr.io/project-zot/zot-linux-amd64:v2.1.21
+    command: ["serve", "/etc/zot/config.json"]
+    volumes:
+      - ./zot-config.json:/etc/zot/config.json:ro
+      - zot-data:/var/lib/zot
+    ports: ["15000:5000"]
+    depends_on: [upstream]
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["19090:9090"]
+volumes:
+  zot-data:

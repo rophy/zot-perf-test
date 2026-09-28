@@ -1,0 +1,14 @@
+/results/
+terraform/*/.terraform/
+terraform/*/.terraform.lock.hcl
+terraform/*/terraform.tfstate*
+terraform/*/tfplan
+terraform/app/.ssh/
+terraform/app/ssh_config
+images/images.json
+test/local/images.json
+test/local/results/
+test/local/zot-config.json
+test/local/k6-smoke.json
+__pycache__/
+.pytest_cache/

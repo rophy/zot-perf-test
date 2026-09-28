@@ -1,0 +1,3 @@
+10MB   synthetic   bench/small
+100MB  synthetic   bench/medium
+1GB    synthetic   bench/large
