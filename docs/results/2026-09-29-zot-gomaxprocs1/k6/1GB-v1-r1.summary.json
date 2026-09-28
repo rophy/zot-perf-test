@@ -1,0 +1,161 @@
+{
+    "metrics": {
+        "http_req_duration": {
+            "p(99)": 640.3739717,
+            "max": 642.155503,
+            "avg": 33.77473415699298,
+            "min": 0.163152,
+            "med": 2.683028,
+            "p(95)": 182.60397899999998
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 1
+        },
+        "image_pull_failed": {
+            "passes": 0,
+            "fails": 115,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        },
+        "http_reqs": {
+            "count": 2860,
+            "rate": 47.53440247382072
+        },
+        "http_req_duration{expected_response:true}": {
+            "max": 642.155503,
+            "avg": 33.77473415699298,
+            "min": 0.163152,
+            "med": 2.683028,
+            "p(95)": 182.60397899999998,
+            "p(99)": 640.3739717
+        },
+        "http_req_receiving": {
+            "med": 0.0384665,
+            "p(95)": 182.32522529999997,
+            "p(99)": 640.17956426,
+            "max": 641.089872,
+            "avg": 31.14813074195809,
+            "min": 0.008684
+        },
+        "image_pull_duration": {
+            "avg": 523.0956521739131,
+            "min": 351,
+            "med": 659,
+            "p(95)": 667,
+            "p(99)": 671.86,
+            "max": 681,
+            "thresholds": {
+                "p(99)<30000": false
+            }
+        },
+        "data_received": {
+            "count": 106869271801,
+            "rate": 1776212230.02548
+        },
+        "data_sent": {
+            "count": 517090,
+            "rate": 8594.253208107677
+        },
+        "image_pull_bytes": {
+            "count": 106868075664,
+            "rate": 1776192349.7256298
+        },
+        "vus_max": {
+            "max": 1,
+            "value": 1,
+            "min": 1
+        },
+        "http_req_connecting": {
+            "med": 0,
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0.247136,
+            "avg": 0.00024493776223776225,
+            "min": 0
+        },
+        "iteration_duration": {
+            "p(99)": 671.8594209,
+            "max": 680.911674,
+            "avg": 523.1778649826085,
+            "min": 351.202225,
+            "med": 659.262801,
+            "p(95)": 667.2796430999999
+        },
+        "iterations": {
+            "count": 115,
+            "rate": 1.9113483512200637
+        },
+        "http_req_blocked": {
+            "max": 0.307222,
+            "avg": 0.003107174475524469,
+            "min": 0.001011,
+            "med": 0.002346,
+            "p(95)": 0.004694649999999991,
+            "p(99)": 0.01458233999999999
+        },
+        "http_req_tls_handshaking": {
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0
+        },
+        "http_req_waiting": {
+            "avg": 2.6188383832167794,
+            "min": 0.132837,
+            "med": 0.288554,
+            "p(95)": 12.776256749999998,
+            "p(99)": 19.49344615999996,
+            "max": 29.333212
+        },
+        "checks": {
+            "fails": 0,
+            "passes": 230,
+            "value": 1
+        },
+        "http_req_sending": {
+            "avg": 0.007765031818181818,
+            "min": 0.002604,
+            "med": 0.0061814999999999995,
+            "p(95)": 0.016995449999999992,
+            "p(99)": 0.029870379999999985,
+            "max": 0.08816
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 2860,
+            "value": 0
+        },
+        "image_pulls": {
+            "count": 115,
+            "rate": 1.9113483512200637
+        }
+    },
+    "root_group": {
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "manifest 200": {
+                    "passes": 115,
+                    "fails": 0,
+                    "name": "manifest 200",
+                    "path": "::manifest 200",
+                    "id": "9901f17e1d3c1538a9d4256439eaa66e"
+                },
+                "all blobs 200 with expected length": {
+                    "name": "all blobs 200 with expected length",
+                    "path": "::all blobs 200 with expected length",
+                    "id": "d5ff40446035b85bd6f96d1600555644",
+                    "passes": 115,
+                    "fails": 0
+                }
+            },
+        "name": "",
+        "path": ""
+    }
+}
