@@ -1,0 +1,29 @@
+[
+  {
+    "run_id": "100MB-v1-r1",
+    "class": "100MB",
+    "vus": 1,
+    "repeat": 1,
+    "start_epoch": 1790655871,
+    "end_epoch": 1790655912,
+    "exit_code": 0,
+    "drop_caches": 0,
+    "pulls_per_s": 23.580171132268685,
+    "mb_per_s": 2294.529836890177,
+    "p50_ms": 42.5,
+    "p95_ms": 53,
+    "p99_ms": 56,
+    "max_ms": 95,
+    "fail_rate": 0,
+    "zot_cpu_pct": 98.09999999962747,
+    "zot_proc_cores": 0.9783999999999999,
+    "zot_rss_mb": 163.708928,
+    "zot_nic_tx_gbps": 18.543894985919998,
+    "zot_disk_read_mbps": 0.00630784,
+    "disk_read_iops": 0.36,
+    "disk_write_iops": 67.32000000000001,
+    "client_cpu_pct": 16.43714285721736,
+    "saturation": "zot-cpu",
+    "valid": true
+  }
+]

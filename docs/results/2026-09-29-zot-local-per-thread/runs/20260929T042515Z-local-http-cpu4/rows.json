@@ -1,0 +1,29 @@
+[
+  {
+    "run_id": "1GB-v1-r1",
+    "class": "1GB",
+    "vus": 1,
+    "repeat": 1,
+    "start_epoch": 1790655915,
+    "end_epoch": 1790655957,
+    "exit_code": 0,
+    "drop_caches": 0,
+    "pulls_per_s": 2.7277413471945664,
+    "mb_per_s": 2536.6035560544856,
+    "p50_ms": 355.5,
+    "p95_ms": 406.1,
+    "p99_ms": 659.2499999999991,
+    "max_ms": 805,
+    "fail_rate": 0,
+    "zot_cpu_pct": 98.97999999858439,
+    "zot_proc_cores": 0.9896,
+    "zot_rss_mb": 165.15072,
+    "zot_nic_tx_gbps": 20.74967370768,
+    "zot_disk_read_mbps": 0.004096,
+    "disk_read_iops": 0.34,
+    "disk_write_iops": 69.56,
+    "client_cpu_pct": 16.387142856738393,
+    "saturation": "zot-cpu",
+    "valid": true
+  }
+]
