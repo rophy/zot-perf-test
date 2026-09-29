@@ -18,13 +18,19 @@ INT_FIELDS = ("vus", "repeat", "start_epoch", "end_epoch", "exit_code", "drop_ca
 # selects CPU sets instead, e.g. ZOT_CPU_SELECTOR='role="host",cpu=~"4|5"'.
 ZOT_SEL = os.environ.get("ZOT_CPU_SELECTOR", 'role="zot"')
 CLIENT_SEL = os.environ.get("CLIENT_CPU_SELECTOR", 'role="client"')
+# zot egress. Single host: zot's traffic appears as *receive* on its host-side veth.
+ZOT_NET_QUERY = os.environ.get(
+    "ZOT_NET_QUERY", 'sum(rate(node_network_transmit_bytes_total{role="zot",device!="lo"}[15s]))')
+DISK_SEL = os.environ.get("DISK_SELECTOR", 'role="zot"')
 
 QUERIES = {
     "zot_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{%s,mode="idle"}[15s])))' % ZOT_SEL,
     "zot_proc_cores": 'rate(process_cpu_seconds_total{job=~"zot.*"}[15s])',
     "zot_rss_mb": 'process_resident_memory_bytes{job=~"zot.*"} / 1e6',
-    "zot_nic_tx_gbps": 'sum(rate(node_network_transmit_bytes_total{role="zot",device!="lo"}[15s])) * 8 / 1e9',
-    "zot_disk_read_mbps": 'sum(rate(node_disk_read_bytes_total{role="zot"}[15s])) / 1e6',
+    "zot_nic_tx_gbps": "(%s) * 8 / 1e9" % ZOT_NET_QUERY,
+    "zot_disk_read_mbps": 'sum(rate(node_disk_read_bytes_total{%s}[15s])) / 1e6' % DISK_SEL,
+    "disk_read_iops": 'sum(rate(node_disk_reads_completed_total{%s}[15s]))' % DISK_SEL,
+    "disk_write_iops": 'sum(rate(node_disk_writes_completed_total{%s}[15s]))' % DISK_SEL,
     "client_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{%s,mode="idle"}[15s])))' % CLIENT_SEL,
 }
 

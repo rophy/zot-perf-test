@@ -38,8 +38,8 @@ def test_node_stats_uses_all_queries():
         return [1.0]
     stats = b.node_stats(qf, 0, 60)
     assert set(stats) == {"zot_cpu_pct", "zot_proc_cores", "zot_rss_mb", "zot_nic_tx_gbps",
-                          "zot_disk_read_mbps", "client_cpu_pct"}
-    assert len(seen) == 6
+                          "zot_disk_read_mbps", "disk_read_iops", "disk_write_iops", "client_cpu_pct"}
+    assert len(seen) == 8
 
 
 def base(**kw):

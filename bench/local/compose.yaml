@@ -23,12 +23,14 @@ services:
     image: prom/prometheus:v3.15.0
     cpuset: "12-15"
     command: [--config.file=/etc/prometheus/prometheus.yml, --web.enable-remote-write-receiver]
+    extra_hosts: ["host.docker.internal:host-gateway"]
     ports: ["19190:9090"]
     volumes: [./prometheus.yml:/etc/prometheus/prometheus.yml:ro]
-  node-exporter:
+  node-exporter:               # host network so it sees per-container veth interfaces
     image: quay.io/prometheus/node-exporter:v1.12.1
     cpuset: "12-15"
-    command: [--path.rootfs=/host]
+    command: [--path.rootfs=/host, --web.listen-address=:19100]
+    network_mode: host
     pid: host
     volumes: ["/:/host:ro,rslave"]
   k6:
