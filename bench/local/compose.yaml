@@ -1,0 +1,50 @@
+# Single-host zot benchmark over a docker network (no NIC limit), with CPU pinning.
+# Host: 6 P-cores (CPUs 0-11, 2 threads each) + 4 E-cores (CPUs 12-15).
+# zot gets whole P-cores; k6 gets the remaining P-cores; everything else sits on E-cores.
+name: ccdn-bench
+services:
+  upstream:
+    image: registry:2
+    cpuset: "12-15"
+    ports: ["15101:5000"]
+    volumes: [upstream-data:/var/lib/registry]
+  zot:
+    image: ghcr.io/project-zot/zot-linux-amd64:v2.1.21
+    command: ["serve", "/etc/zot/${ZOT_CONFIG:-config-http.json}"]
+    cpuset: "${ZOT_CPUSET:-4,5}"
+    environment:
+      GOMAXPROCS: "${ZOT_GOMAXPROCS:-2}"
+    ports: ["15100:5000"]
+    volumes:
+      - ./generated:/etc/zot:ro
+      - zot-data:/var/lib/zot
+    depends_on: [upstream]
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    cpuset: "12-15"
+    command: [--config.file=/etc/prometheus/prometheus.yml, --web.enable-remote-write-receiver]
+    ports: ["19190:9090"]
+    volumes: [./prometheus.yml:/etc/prometheus/prometheus.yml:ro]
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.12.1
+    cpuset: "12-15"
+    command: [--path.rootfs=/host]
+    pid: host
+    volumes: ["/:/host:ro,rslave"]
+  k6:
+    image: grafana/k6:2.3.0
+    profiles: [load]
+    cpuset: "${K6_CPUSET:-0-3,6-11}"
+    entrypoint: ["sh", "-c"]
+    working_dir: /w/k6
+    user: "${UID_GID:-1000:1000}"
+    environment:
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_TREND_STATS: "p(50),p(95),p(99),max"
+    volumes:
+      - ../../k6:/w/k6:ro
+      - ./generated/images.json:/w/images.json:ro
+      - ./generated/k6out:/tmp/ccdn-results
+volumes:
+  upstream-data:
+  zot-data:

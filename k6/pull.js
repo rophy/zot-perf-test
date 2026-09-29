@@ -27,6 +27,7 @@ const pullFailed = new Rate('image_pull_failed');
 export const options = {
   scenarios: { pull: { executor: 'constant-vus', vus: VUS, duration: DURATION, gracefulStop: '120s' } },
   discardResponseBodies: true,
+  insecureSkipTLSVerify: true,
   batch: LAYER_PARALLELISM,
   batchPerHost: LAYER_PARALLELISM,
   summaryTrendStats: ['avg', 'min', 'med', 'p(95)', 'p(99)', 'max'],

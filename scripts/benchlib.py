@@ -14,13 +14,18 @@ CLIENT_CPU_MAX_PCT = 70.0
 
 INT_FIELDS = ("vus", "repeat", "start_epoch", "end_epoch", "exit_code", "drop_caches")
 
+# Label selectors for node CPU. Defaults match the two-node EC2 setup; a single-host run
+# selects CPU sets instead, e.g. ZOT_CPU_SELECTOR='role="host",cpu=~"4|5"'.
+ZOT_SEL = os.environ.get("ZOT_CPU_SELECTOR", 'role="zot"')
+CLIENT_SEL = os.environ.get("CLIENT_CPU_SELECTOR", 'role="client"')
+
 QUERIES = {
-    "zot_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{role="zot",mode="idle"}[15s])))',
-    "zot_proc_cores": 'rate(process_cpu_seconds_total{job="zot"}[15s])',
-    "zot_rss_mb": 'process_resident_memory_bytes{job="zot"} / 1e6',
+    "zot_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{%s,mode="idle"}[15s])))' % ZOT_SEL,
+    "zot_proc_cores": 'rate(process_cpu_seconds_total{job=~"zot.*"}[15s])',
+    "zot_rss_mb": 'process_resident_memory_bytes{job=~"zot.*"} / 1e6',
     "zot_nic_tx_gbps": 'sum(rate(node_network_transmit_bytes_total{role="zot",device!="lo"}[15s])) * 8 / 1e9',
     "zot_disk_read_mbps": 'sum(rate(node_disk_read_bytes_total{role="zot"}[15s])) / 1e6',
-    "client_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{role="client",mode="idle"}[15s])))',
+    "client_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{%s,mode="idle"}[15s])))' % CLIENT_SEL,
 }
 
 

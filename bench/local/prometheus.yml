@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  - job_name: zot            # plain HTTP variant
+    static_configs: [{ targets: ["zot:5000"] }]
+  - job_name: zot-tls        # TLS variant (only one of the two is up at a time)
+    scheme: https
+    tls_config: { insecure_skip_verify: true }
+    static_configs: [{ targets: ["zot:5000"] }]
+  - job_name: node
+    static_configs: [{ targets: ["node-exporter:9100"], labels: { role: host } }]
