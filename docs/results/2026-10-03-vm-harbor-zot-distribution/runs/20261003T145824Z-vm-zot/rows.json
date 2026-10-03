@@ -1,0 +1,29 @@
+[
+  {
+    "run_id": "10MB-v16-r1",
+    "class": "10MB",
+    "vus": 16,
+    "repeat": 1,
+    "start_epoch": 1791039504,
+    "end_epoch": 1791039545,
+    "exit_code": 0,
+    "drop_caches": 0,
+    "pulls_per_s": 180.48031144894898,
+    "mb_per_s": 2210.168447418951,
+    "p50_ms": 83,
+    "p95_ms": 143,
+    "p99_ms": 202.72000000000025,
+    "max_ms": 609,
+    "fail_rate": 0,
+    "zot_cpu_pct": 52.55000000000064,
+    "zot_proc_cores": 1.9018000000000008,
+    "zot_rss_mb": 736.7426048,
+    "zot_nic_tx_gbps": 17.925295988000002,
+    "zot_disk_read_mbps": 0.0,
+    "disk_read_iops": 0.0,
+    "disk_write_iops": 0.9200000000000002,
+    "client_cpu_pct": 39.74125000019557,
+    "saturation": "none",
+    "valid": true
+  }
+]
