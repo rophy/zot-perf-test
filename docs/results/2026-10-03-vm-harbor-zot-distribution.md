@@ -1,6 +1,6 @@
 # Harbor vs zot vs Distribution — warm pulls in one VM
 
-Date: 2026-10-03 · Step log: [`steps-log.md`](2026-10-03-vm-harbor-zot-distribution/steps-log.md) · Raw runs: [`runs/`](2026-10-03-vm-harbor-zot-distribution/runs/)
+Date: 2026-10-03 · Consolidated findings: [`edge-cache-warm-throughput-report.md`](edge-cache-warm-throughput-report.md) · Step log: [`steps-log.md`](2026-10-03-vm-harbor-zot-distribution/steps-log.md) · Raw runs: [`runs/`](2026-10-03-vm-harbor-zot-distribution/runs/)
 
 ## Setup
 
@@ -8,10 +8,11 @@ Date: 2026-10-03 · Step log: [`steps-log.md`](2026-10-03-vm-harbor-zot-distribu
 - **Registries** (one running at a time, same VM):
   - **Harbor v2.15.2** — online installer, plain HTTP, no Trivy; public **proxy-cache project** `proxy` → upstream registry on the host.
   - **zot v2.1.21** — container, same config as earlier tests (local storage, on-demand sync, `preserveDigest`, dedupe off, GC off).
-  - **Distribution `registry:2`** (control) — images pushed directly (**not** proxy mode), no auth.
+  - **Distribution v3.1.2 (`registry:3`) in proxy mode** — `REGISTRY_PROXY_REMOTEURL` → upstream, defaults otherwise.
+  - **Distribution `registry:2`** (v2.8.3, control) — images pushed directly (**not** proxy mode), no auth.
 - **Upstream:** `registry:2` on the host holding the same 6 images/digests as earlier runs.
 - **Load:** k6 on the host (unpinned), same pull model (manifest, then config + layers, 3 in parallel). For Harbor each pull also fetches an anonymous bearer token (as docker does).
-- **Warm cache verified** for Harbor and zot: all blobs on disk, all images pullable with the upstream stopped, and **0 upstream requests** during the timed runs.
+- **Warm cache verified** for Harbor, zot and Distribution proxy: all blobs on disk, all images pullable with the upstream stopped, and **0 upstream requests** during the timed runs.
 - **Metrics:** registry CPU = busy vCPUs of the whole VM (covers every Harbor container); memory = VM used (total − available); disk/network from the VM's node_exporter.
 - 10MB class only; 40 s steps; single run per step. Host was busy (load average 3–6.6, other VMs and builds running).
 
@@ -23,9 +24,14 @@ Date: 2026-10-03 · Step log: [`steps-log.md`](2026-10-03-vm-harbor-zot-distribu
 | Harbor | 2 | 239 | 19.5 | 101 / 154 | 2.93 / 4 | 888 | 261 |
 | Harbor | 4 | 286 | 23.4 | 168 / 245 | 3.46 / 4 | 914 | 313 |
 | Harbor | 8 | **334** | 27.2 | 293 / 395 | **3.77 / 4** | 966 | 353 |
-| Distribution | 1 | 723 | 59.0 | 16 / 37 | 2.11 / 4 | 687 | 1 |
-| Distribution | 2 | 907 | 74.1 | 25 / 50 | 2.63 / 4 | 704 | 1 |
-| Distribution | 4 | 1113 | 90.9 | 42 / 78 | 2.86 / 4 | 699 | 1 |
+| Distribution proxy | 1 | 818 | 66.8 | 14 / 31 | 2.11 / 4 | 734 | 5 |
+| Distribution proxy | 2 | 981 | 80.1 | 23 / 48 | 2.54 / 4 | 733 | 4 |
+| Distribution proxy | 4 | 1158 | 94.6 | 40 / 78 | 2.82 / 4 | 739 | 10 |
+| Distribution proxy | 8 | 1403 | 114.6 | 67 / 126 | 3.02 / 4 | 745 | 10 |
+| Distribution proxy | 16 | **1614** | 131.8 | 115 / 259 | 3.22 / 4 | 799 | 8 |
+| Distribution control (no proxy) | 1 | 723 | 59.0 | 16 / 37 | 2.11 / 4 | 687 | 1 |
+| Distribution control (no proxy) | 2 | 907 | 74.1 | 25 / 50 | 2.63 / 4 | 704 | 1 |
+| Distribution control (no proxy) | 4 | 1113 | 90.9 | 42 / 78 | 2.86 / 4 | 699 | 1 |
 | zot | 1 | 1229 | 100.3 | 9 / 22 | 1.32 / 4 | 697 | 9 |
 | zot | 2 | 1464 | 119.5 | 16 / 35 | 1.52 / 4 | 701 | 1 |
 | zot | 4 | 1679 | 137.1 | 28 / 56 | 1.59 / 4 | 706 | 1 |
@@ -38,7 +44,8 @@ Zero failed pulls everywhere.
 | | Peak MB/s | Limited by | vCPUs per GB/s |
 |---|---:|---|---:|
 | zot | 2210 | not VM CPU (≈ 1.9 / 4 busy) — virtio/host path | ≈ 0.9 |
-| Distribution (no auth, no proxy) | ≥ 1113 | not reached (4 VUs max) | ≈ 2.6 |
+| Distribution proxy | 1614 | VM CPU nearly (3.2 / 4) | ≈ 2.0 |
+| Distribution control (no auth, no proxy) | ≥ 1113 | not reached (4 VUs max) | ≈ 2.6 |
 | Harbor (proxy cache) | 334 | VM CPU (3.8 / 4) | ≈ 11 |
 
 ## Harbor bottleneck analysis
@@ -84,5 +91,5 @@ client ─► nginx ─► harbor-core ─► registry (Distribution) ─► dis
 
 - Absolute numbers are VM- and host-specific (virtio networking inside the guest is CPU-expensive: even Distribution needed ~2 vCPU for 0.7 GB/s). Compare ratios, not absolutes.
 - zot did not saturate the VM's CPU, so its true per-vCPU ceiling is higher than shown.
-- The Distribution control had **no auth and no proxy mode**; a pull-through Distribution test is the next step.
+- The Distribution control (`registry:2`) had no auth and no proxy mode; the proxy-mode run (`registry:3`) is the like-for-like pull-through comparison.
 - Noisy shared host, unpinned VM, single run per step.

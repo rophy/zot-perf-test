@@ -17,3 +17,8 @@ VM: multipass, Ubuntu 24.04, 4 vCPU (unpinned), 8 GiB. k6 on the host. Registry 
 | 14:58 | zot | 10MB | 8 | 1978 | 15.8 | 161.5 | 46 | 107 | 0 | 1.76 / 4 | 712 | 16.2 | 0 | 1 | 40 | 20261003T145733Z-vm-zot |
 | 14:59 | zot | 10MB | 16 | 2210 | 17.7 | 180.5 | 83 | 203 | 0 | 1.9 / 4 | 737 | 17.9 | 0 | 1 | 40 | 20261003T145824Z-vm-zot |
 | 14:59 | zot | 10MB | 32 | 2200 | 17.6 | 179.7 | 154 | 471 | 0 | 1.94 / 4 | 787 | 18.3 | 0 | 1 | 39 | 20261003T145907Z-vm-zot |
+| 15:37 | distribution-proxy | 10MB | 1 | 818 | 6.5 | 66.8 | 14 | 31 | 0 | 2.11 / 4 | 734 | 6.5 | 0 | 5 | 38 | 20261003T153706Z-vm-distribution-proxy |
+| 15:38 | distribution-proxy | 10MB | 2 | 981 | 7.8 | 80.1 | 23 | 48 | 0 | 2.54 / 4 | 733 | 8 | 0 | 4 | 42 | 20261003T153749Z-vm-distribution-proxy |
+| 15:39 | distribution-proxy | 10MB | 4 | 1158 | 9.3 | 94.6 | 40 | 78 | 0 | 2.82 / 4 | 739 | 9.3 | 0 | 10 | 44 | 20261003T153832Z-vm-distribution-proxy |
+| 15:39 | distribution-proxy | 10MB | 8 | 1403 | 11.2 | 114.6 | 67 | 126 | 0 | 3.02 / 4 | 745 | 11.2 | 0 | 10 | 46 | 20261003T153916Z-vm-distribution-proxy |
+| 15:40 | distribution-proxy | 10MB | 16 | 1614 | 12.9 | 131.8 | 115 | 259 | 0 | 3.22 / 4 | 799 | 13 | 0 | 8 | 47 | 20261003T153959Z-vm-distribution-proxy |
