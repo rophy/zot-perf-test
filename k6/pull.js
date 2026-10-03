@@ -3,7 +3,7 @@ import { check } from 'k6';
 import exec from 'k6/execution';
 import { SharedArray } from 'k6/data';
 import { Counter, Rate, Trend } from 'k6/metrics';
-import { imagesForClass, pickImage, blobDescriptors } from './lib/select.js';
+import { imagesForClass, pickImage, blobDescriptors, parseBearerChallenge, tokenURL } from './lib/select.js';
 
 const REGISTRY = __ENV.REGISTRY || 'http://localhost:5000';
 const CLASS = __ENV.CLASS || '10MB';
@@ -42,9 +42,23 @@ export default function () {
   const tags = { size_class: img.class, image: img.repo };
   const start = Date.now();
 
-  const mres = http.get(`${REGISTRY}/v2/${img.repo}/manifests/${img.digest}`, {
-    headers: { Accept: ACCEPT }, responseType: 'text', tags: { ...tags, kind: 'manifest' },
-  });
+  const manifestURL = `${REGISTRY}/v2/${img.repo}/manifests/${img.digest}`;
+  const headers = { Accept: ACCEPT };
+  let mres = http.get(manifestURL, { headers, responseType: 'text', tags: { ...tags, kind: 'manifest' } });
+  // Registries with token auth (e.g. Harbor) answer 401 even for anonymous pulls: fetch a
+  // pull token once per image pull, as docker/containerd do, then retry.
+  if (mres.status === 401) {
+    const challenge = parseBearerChallenge(mres.headers['Www-Authenticate']);
+    const tres = challenge && http.get(tokenURL(challenge, img.repo),
+      { responseType: 'text', tags: { ...tags, kind: 'token' } });
+    if (!tres || tres.status !== 200) {
+      pullFailed.add(true, tags);
+      return;
+    }
+    const body = JSON.parse(tres.body);
+    headers.Authorization = `Bearer ${body.token || body.access_token}`;
+    mres = http.get(manifestURL, { headers, responseType: 'text', tags: { ...tags, kind: 'manifest' } });
+  }
   if (!check(mres, { 'manifest 200': r => r.status === 200 })) {
     pullFailed.add(true, tags);
     return;
@@ -54,7 +68,8 @@ export default function () {
   const responses = http.batch(blobs.map(b => ({
     method: 'GET',
     url: `${REGISTRY}/v2/${img.repo}/blobs/${b.digest}`,
-    params: { tags: { ...tags, kind: 'blob' }, timeout: '300s' },
+    params: { headers: headers.Authorization ? { Authorization: headers.Authorization } : {},
+              tags: { ...tags, kind: 'blob' }, timeout: '300s' },
   })));
   const ok = check(responses, {
     'all blobs 200 with expected length': rs => rs.every((r, i) =>

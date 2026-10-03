@@ -23,3 +23,18 @@ export function blobDescriptors(manifest) {
   if (manifest.manifests) throw new Error('got an image index; expected an image manifest');
   return [manifest.config, ...manifest.layers];
 }
+
+// Parse a registry `WWW-Authenticate: Bearer realm="..",service="..",scope=".."` header.
+export function parseBearerChallenge(header) {
+  if (!header || !/^Bearer\s/i.test(header)) return null;
+  const out = {};
+  for (const m of header.matchAll(/(\w+)="([^"]*)"/g)) out[m[1]] = m[2];
+  return out.realm ? out : null;
+}
+
+export function tokenURL(challenge, repo) {
+  const q = [];
+  if (challenge.service) q.push(`service=${encodeURIComponent(challenge.service)}`);
+  q.push(`scope=${encodeURIComponent(`repository:${repo}:pull`)}`);
+  return `${challenge.realm}?${q.join('&')}`;
+}

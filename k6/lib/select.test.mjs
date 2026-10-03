@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { imagesForClass, pickImage, blobDescriptors, MIX_WEIGHTS } from './select.js';
+import { imagesForClass, pickImage, blobDescriptors, MIX_WEIGHTS, parseBearerChallenge, tokenURL } from './select.js';
 
 const imgs = [
   { class: '10MB', repo: 'a' }, { class: '10MB', repo: 'b' },
@@ -41,4 +41,16 @@ test('blobDescriptors returns config then layers', () => {
 
 test('blobDescriptors rejects an index', () => {
   assert.throws(() => blobDescriptors({ manifests: [] }), /index/);
+});
+
+test('parseBearerChallenge reads realm and service', () => {
+  const c = parseBearerChallenge('Bearer realm="http://h/service/token",service="harbor-registry"');
+  assert.deepEqual(c, { realm: 'http://h/service/token', service: 'harbor-registry' });
+  assert.equal(parseBearerChallenge('Basic realm="x"'), null);
+  assert.equal(parseBearerChallenge(undefined), null);
+});
+
+test('tokenURL builds a pull scope', () => {
+  assert.equal(tokenURL({ realm: 'http://h/t', service: 's' }, 'proxy/bench/a'),
+    'http://h/t?service=s&scope=repository%3Aproxy%2Fbench%2Fa%3Apull');
 });

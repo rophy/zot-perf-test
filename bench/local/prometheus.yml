@@ -9,3 +9,5 @@ scrape_configs:
     static_configs: [{ targets: ["zot:5000"] }]
   - job_name: node
     static_configs: [{ targets: ["host.docker.internal:19100"], labels: { role: host } }]
+  - job_name: vm             # bench VM node_exporter; target written by bench/vm (gitignored)
+    file_sd_configs: [{ files: [/etc/prometheus/generated/vm-targets.json] }]

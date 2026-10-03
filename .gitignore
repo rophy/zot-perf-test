@@ -13,3 +13,4 @@ test/local/k6-smoke.json
 __pycache__/
 .pytest_cache/
 bench/local/generated/
+bench/vm/generated/

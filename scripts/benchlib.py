@@ -22,11 +22,15 @@ CLIENT_SEL = os.environ.get("CLIENT_CPU_SELECTOR", 'role="client"')
 ZOT_NET_QUERY = os.environ.get(
     "ZOT_NET_QUERY", 'sum(rate(node_network_transmit_bytes_total{role="zot",device!="lo"}[15s]))')
 DISK_SEL = os.environ.get("DISK_SELECTOR", 'role="zot"')
+# Registry CPU (cores) and memory (MB). Defaults: the zot process. A VM-based run can use
+# whole-VM figures instead, covering every component of a multi-container registry.
+PROC_CORES_QUERY = os.environ.get("PROC_CORES_QUERY", 'rate(process_cpu_seconds_total{job=~"zot.*"}[15s])')
+RSS_QUERY = os.environ.get("RSS_QUERY", 'process_resident_memory_bytes{job=~"zot.*"} / 1e6')
 
 QUERIES = {
     "zot_cpu_pct": '100 * (1 - avg(rate(node_cpu_seconds_total{%s,mode="idle"}[15s])))' % ZOT_SEL,
-    "zot_proc_cores": 'rate(process_cpu_seconds_total{job=~"zot.*"}[15s])',
-    "zot_rss_mb": 'process_resident_memory_bytes{job=~"zot.*"} / 1e6',
+    "zot_proc_cores": PROC_CORES_QUERY,
+    "zot_rss_mb": RSS_QUERY,
     "zot_nic_tx_gbps": "(%s) * 8 / 1e9" % ZOT_NET_QUERY,
     "zot_disk_read_mbps": 'sum(rate(node_disk_read_bytes_total{%s}[15s])) / 1e6' % DISK_SEL,
     "disk_read_iops": 'sum(rate(node_disk_reads_completed_total{%s}[15s]))' % DISK_SEL,

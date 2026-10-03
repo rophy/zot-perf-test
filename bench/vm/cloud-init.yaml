@@ -1,0 +1,11 @@
+#cloud-config
+# Benchmark VM: docker + node_exporter. zot and Harbor are installed by bench/vm/install-*.sh.
+package_update: true
+packages: [docker.io, docker-compose-v2, iperf3, jq, curl]
+runcmd:
+  - usermod -aG docker ubuntu
+  - curl -fsSL https://github.com/prometheus/node_exporter/releases/download/v1.12.1/node_exporter-1.12.1.linux-amd64.tar.gz | tar -xz -C /usr/local/bin --strip-components=1 node_exporter-1.12.1.linux-amd64/node_exporter
+  - printf '[Unit]\nDescription=node_exporter\n[Service]\nExecStart=/usr/local/bin/node_exporter\nRestart=always\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/node_exporter.service
+  - systemctl daemon-reload
+  - systemctl enable --now node_exporter docker
+  - touch /var/local/bootstrap-done

@@ -1,0 +1,16 @@
+# Load generator for the bench VM: k6 on the host (unpinned), pulling from a registry in the VM.
+name: ccdn-vm
+services:
+  k6:
+    image: grafana/k6:2.3.0
+    entrypoint: ["sh", "-c"]
+    working_dir: /w/k6
+    user: "${UID_GID:-1000:1000}"
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    environment:
+      K6_PROMETHEUS_RW_SERVER_URL: http://host.docker.internal:19190/api/v1/write
+      K6_PROMETHEUS_RW_TREND_STATS: "p(50),p(95),p(99),max"
+    volumes:
+      - ../../k6:/w/k6:ro
+      - ./generated/${IMAGES_FILE:-images-harbor.json}:/w/images.json:ro
+      - ./generated/k6out:/tmp/ccdn-results
