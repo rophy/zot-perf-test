@@ -41,10 +41,12 @@ def wait_quiet(k6_end):
     samples = []
     while True:
         now = time.time()
-        samples.append((now, upstream_tx(), prom(Q_DISK_BYTES, now) or 0.0))
-        end = c.quiet_end(samples, k6_end)
-        if end is not None:
-            return end, False
+        disk = prom(Q_DISK_BYTES, now)
+        if disk is not None:  # missing Prometheus data is never "quiet"
+            samples.append((now, upstream_tx(), disk))
+            end = c.quiet_end(samples, k6_end)
+            if end is not None:
+                return end, False
         if now - k6_end > CAP_S:
             return now, True
         time.sleep(2)
@@ -61,14 +63,15 @@ def collect(a):
     end = int(end) + 1
     window = end - a.start
     k6_s = max(a.k6_end - a.start, 15)
+    summary_missing = False
     try:
         with open(f"{a.run_dir}/summary.json") as f:
             summary = json.load(f)
     except FileNotFoundError:
-        summary = {"metrics": {}}
+        summary, summary_missing = {"metrics": {}}, True
     prom_d = {
         "cpu_s": delta(Q_CPU, a.start, end),
-        "disk_wr_mb": (delta(Q_DISK_BYTES, a.start, end) or 0) / 1e6,
+        "disk_wr_mb": None if (d := delta(Q_DISK_BYTES, a.start, end)) is None else d / 1e6,
         "disk_wr_ops": delta(Q_DISK_OPS, a.start, end),
         "mem_peak_mb": prom(f"max_over_time(({Q_MEM})[{window}s:5s])", end),
         "mem_avg_mb": prom(f"avg_over_time(({Q_MEM})[{window}s:5s])", end),
@@ -82,7 +85,7 @@ def collect(a):
         images = c.select_images(json.load(f)["images"], a.cls, a.scenario, a.pool_limit, a.image_index)
     meta = {"registry": a.registry, "scenario": a.scenario, "class": a.cls, "vus": a.vus,
             "image_index": a.image_index, "start": a.start, "k6_end": a.k6_end, "end": end,
-            "capped": capped, "k6_exit": a.k6_exit, "run_dir": a.run_dir}
+            "capped": capped, "k6_exit": a.k6_exit, "summary_missing": summary_missing, "run_dir": a.run_dir}
     row = c.step_row(meta, c.k6_counts(summary), prom_d, c.parse_access_log(lines), images)
     with open(f"{a.run_dir}/row.json", "w") as f:
         json.dump(row, f, indent=2)

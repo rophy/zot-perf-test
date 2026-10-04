@@ -88,3 +88,11 @@ def test_markdown_row_has_header_columns():
     line = c.markdown_row({**_row(), "integrity": "ok"})
     assert line.startswith("| ") and line.count("|") == c.MD_HEADER.splitlines()[-1].count("|")
     assert "| zot | stampede | s1g | 4 |" in line
+
+
+def test_markdown_row_k6_rc_cell():
+    ok = c.markdown_row({**_row(), "integrity": "ok"})
+    assert ok.rstrip(" |").endswith("| x | 0")
+    bad = c.markdown_row({**_row(summary_missing=True), "integrity": "ok"})
+    assert bad.rstrip(" |").endswith("| x | FAIL")
+    assert bad.count("|") == c.MD_HEADER.splitlines()[-1].count("|")
