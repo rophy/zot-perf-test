@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { imagesForClass, pickImage, blobDescriptors, MIX_WEIGHTS, parseBearerChallenge, tokenURL } from './select.js';
+import { imagesForClass, pickImage, blobDescriptors, MIX_WEIGHTS, parseBearerChallenge, tokenURL, coldPick, errorCategory } from './select.js';
 
 const imgs = [
   { class: '10MB', repo: 'a' }, { class: '10MB', repo: 'b' },
@@ -53,4 +53,26 @@ test('parseBearerChallenge reads realm and service', () => {
 test('tokenURL builds a pull scope', () => {
   assert.equal(tokenURL({ realm: 'http://h/t', service: 's' }, 'proxy/bench/a'),
     'http://h/t?service=s&scope=repository%3Aproxy%2Fbench%2Fa%3Apull');
+});
+
+test('coldPick unique walks the pool by test-wide iteration', () => {
+  const pool = [{ repo: 'a' }, { repo: 'b' }, { repo: 'c' }];
+  assert.equal(coldPick(pool, 'unique', 0, 0).repo, 'a');
+  assert.equal(coldPick(pool, 'unique', 2, 0).repo, 'c');
+  assert.throws(() => coldPick(pool, 'unique', 3, 0), /out of range/);
+});
+
+test('coldPick stampede always returns the chosen image', () => {
+  const pool = [{ repo: 'a' }, { repo: 'b' }];
+  assert.equal(coldPick(pool, 'stampede', 0, 1).repo, 'b');
+  assert.equal(coldPick(pool, 'stampede', 7, 1).repo, 'b');
+  assert.throws(() => coldPick(pool, 'stampede', 0, 2), /out of range/);
+  assert.throws(() => coldPick(pool, 'other', 0, 0), /unknown scenario/);
+});
+
+test('errorCategory buckets HTTP statuses', () => {
+  assert.equal(errorCategory(0), 'timeout');
+  assert.equal(errorCategory(404), '4xx');
+  assert.equal(errorCategory(503), '5xx');
+  assert.equal(errorCategory(200), 'other');
 });

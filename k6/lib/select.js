@@ -38,3 +38,22 @@ export function tokenURL(challenge, repo) {
   q.push(`scope=${encodeURIComponent(`repository:${repo}:pull`)}`);
   return `${challenge.realm}?${q.join('&')}`;
 }
+
+// Cold-pull selection. unique: every iteration (test-wide) gets the next never-pulled image.
+// stampede: every VU pulls the same image.
+export function coldPick(pool, scenario, iterationInTest, imageIndex) {
+  let i;
+  if (scenario === 'unique') i = iterationInTest;
+  else if (scenario === 'stampede') i = imageIndex;
+  else throw new Error(`unknown scenario ${scenario}`);
+  if (i < 0 || i >= pool.length) throw new Error(`image index ${i} out of range (pool ${pool.length})`);
+  return pool[i];
+}
+
+// k6 reports status 0 for timeouts and connection errors.
+export function errorCategory(status) {
+  if (status === 0) return 'timeout';
+  if (status >= 400 && status < 500) return '4xx';
+  if (status >= 500) return '5xx';
+  return 'other';
+}
