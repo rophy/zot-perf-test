@@ -1,0 +1,155 @@
+{
+    "metrics": {
+        "checks": {
+            "passes": 32,
+            "fails": 0,
+            "value": 1
+        },
+        "vus_max": {
+            "max": 16,
+            "value": 16,
+            "min": 16
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 96,
+            "value": 0
+        },
+        "image_pull_failed": {
+            "passes": 0,
+            "fails": 16,
+            "value": 0
+        },
+        "data_received": {
+            "count": 1600274455,
+            "rate": 621184488.389492
+        },
+        "iterations": {
+            "count": 16,
+            "rate": 6.210779521711401
+        },
+        "vus": {
+            "max": 16,
+            "value": 15,
+            "min": 15
+        },
+        "http_req_tls_handshaking": {
+            "med": 0,
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0,
+            "avg": 0,
+            "min": 0
+        },
+        "http_req_sending": {
+            "min": 0.009807,
+            "med": 0.025549500000000003,
+            "p(95)": 0.05601375,
+            "p(99)": 0.14819864999999638,
+            "max": 1.360164,
+            "avg": 0.043044041666666664
+        },
+        "image_pull_bytes": {
+            "rate": 621165480.6869396,
+            "count": 1600225488
+        },
+        "data_sent": {
+            "rate": 6980.916182403615,
+            "count": 17984
+        },
+        "http_reqs": {
+            "rate": 37.26467713026841,
+            "count": 96
+        },
+        "image_pull_duration": {
+            "avg": 2436.875,
+            "min": 1931,
+            "med": 2488,
+            "p(95)": 2570.5,
+            "p(99)": 2574.1,
+            "max": 2575
+        },
+        "http_req_waiting": {
+            "avg": 599.82871971875,
+            "min": 38.585593,
+            "med": 500.2677885,
+            "p(95)": 1236.603742,
+            "p(99)": 1358.663378049999,
+            "max": 1698.95222
+        },
+        "http_req_receiving": {
+            "med": 318.007104,
+            "p(95)": 956.3698449999999,
+            "p(99)": 1047.6347681999991,
+            "max": 1299.748527,
+            "avg": 362.8898987187501,
+            "min": 0.051152
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 962.7616624791671,
+            "min": 42.840487,
+            "med": 1026.205173,
+            "p(95)": 2136.8400585,
+            "p(99)": 2287.0371612500003,
+            "max": 2291.2549
+        },
+        "iteration_duration": {
+            "min": 1930.902838,
+            "med": 2487.8635265000003,
+            "p(95)": 2570.155301,
+            "p(99)": 2574.1514258,
+            "max": 2575.150457,
+            "avg": 2436.8663096875002
+        },
+        "http_req_duration": {
+            "avg": 962.7616624791671,
+            "min": 42.840487,
+            "med": 1026.205173,
+            "p(95)": 2136.8400585,
+            "p(99)": 2287.0371612500003,
+            "max": 2291.2549
+        },
+        "http_req_blocked": {
+            "max": 1.491034,
+            "avg": 0.3328206979166667,
+            "min": 0.002422,
+            "med": 0.1716995,
+            "p(95)": 0.84353575,
+            "p(99)": 1.2104714499999991
+        },
+        "http_req_connecting": {
+            "min": 0,
+            "med": 0.128776,
+            "p(95)": 0.80860425,
+            "p(99)": 0.980714399999999,
+            "max": 1.33473,
+            "avg": 0.2924087083333335
+        },
+        "image_pulls": {
+            "count": 16,
+            "rate": 6.210779521711401
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "manifest 200": {
+                    "id": "9901f17e1d3c1538a9d4256439eaa66e",
+                    "passes": 16,
+                    "fails": 0,
+                    "name": "manifest 200",
+                    "path": "::manifest 200"
+                },
+                "all blobs 200 with expected length": {
+                    "passes": 16,
+                    "fails": 0,
+                    "name": "all blobs 200 with expected length",
+                    "path": "::all blobs 200 with expected length",
+                    "id": "d5ff40446035b85bd6f96d1600555644"
+                }
+            }
+    }
+}

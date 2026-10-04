@@ -1,0 +1,145 @@
+{
+    "metrics": {
+        "http_req_waiting": {
+            "min": 0.466614,
+            "med": 0.660674,
+            "p(95)": 2.760379,
+            "p(99)": 2.9328886,
+            "max": 2.976016,
+            "avg": 1.2281586666666668
+        },
+        "image_pull_bytes": {
+            "count": 100014102,
+            "rate": 1217610609.561444
+        },
+        "http_req_duration": {
+            "p(99)": 76.97520650000001,
+            "max": 78.928304,
+            "avg": 28.32033183333333,
+            "min": 0.530356,
+            "med": 24.863039999999998,
+            "p(95)": 69.16281649999999
+        },
+        "data_received": {
+            "rate": 1217638379.3433535,
+            "count": 100016383
+        },
+        "iteration_duration": {
+            "max": 82.040982,
+            "avg": 82.040982,
+            "min": 82.040982,
+            "med": 82.040982,
+            "p(95)": 82.040982,
+            "p(99)": 82.040982
+        },
+        "http_req_sending": {
+            "med": 0.0294745,
+            "p(95)": 0.049133,
+            "p(99)": 0.052069000000000004,
+            "max": 0.052803,
+            "avg": 0.028777833333333336,
+            "min": 0.009043
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 6,
+            "value": 0
+        },
+        "image_pull_failed": {
+            "passes": 0,
+            "fails": 1,
+            "value": 0
+        },
+        "image_pull_duration": {
+            "max": 82,
+            "avg": 82,
+            "min": 82,
+            "med": 82,
+            "p(95)": 82,
+            "p(99)": 82
+        },
+        "http_req_connecting": {
+            "avg": 0.19580133333333335,
+            "min": 0,
+            "med": 0.1678675,
+            "p(95)": 0.43115775,
+            "p(99)": 0.44045475,
+            "max": 0.442779
+        },
+        "checks": {
+            "passes": 2,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0
+        },
+        "iterations": {
+            "count": 1,
+            "rate": 12.174389263240537
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 28.32033183333333,
+            "min": 0.530356,
+            "med": 24.863039999999998,
+            "p(95)": 69.16281649999999,
+            "p(99)": 76.97520650000001,
+            "max": 78.928304
+        },
+        "http_req_receiving": {
+            "max": 78.383995,
+            "avg": 27.063395333333332,
+            "min": 0.038195,
+            "med": 23.06002,
+            "p(95)": 68.223957,
+            "p(99)": 76.35198740000001
+        },
+        "http_reqs": {
+            "count": 6,
+            "rate": 73.04633557944322
+        },
+        "http_req_blocked": {
+            "avg": 0.25417850000000003,
+            "min": 0.002858,
+            "med": 0.19877999999999998,
+            "p(95)": 0.5668690000000001,
+            "p(99)": 0.5722322,
+            "max": 0.573573
+        },
+        "image_pulls": {
+            "count": 1,
+            "rate": 12.174389263240537
+        },
+        "data_sent": {
+            "count": 1124,
+            "rate": 13684.013531882363
+        }
+    },
+    "root_group": {
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "manifest 200": {
+                    "name": "manifest 200",
+                    "path": "::manifest 200",
+                    "id": "9901f17e1d3c1538a9d4256439eaa66e",
+                    "passes": 1,
+                    "fails": 0
+                },
+                "all blobs 200 with expected length": {
+                    "name": "all blobs 200 with expected length",
+                    "path": "::all blobs 200 with expected length",
+                    "id": "d5ff40446035b85bd6f96d1600555644",
+                    "passes": 1,
+                    "fails": 0
+                }
+            },
+        "name": ""
+    }
+}

@@ -5,7 +5,7 @@
 | Dates | 2026-09-28 – 2026-10-03 |
 | Question | How much CPU, memory, disk and network does a registry need to serve **cached** images at an edge site? |
 | Candidates | zot v2.1.21 · Distribution v3.1.2 (proxy mode) · Harbor v2.15.2 (proxy-cache project) |
-| Scope | Warm cache, whole-image pulls, plain HTTP (TLS ends at the ingress gateway). Cold pulls, GC, HA not tested. |
+| Scope | Warm cache, whole-image pulls, plain HTTP (TLS ends at the ingress gateway). Cold pulls: see the [cold-pull report](edge-cache-cold-pull-report.md). GC, HA not tested. |
 
 ## 1. Findings
 
@@ -141,7 +141,7 @@ Harbor needs roughly an order of magnitude more CPU for the same egress, plus a 
 
 | Not tested | Relevance | Known zot issues |
 |---|---|---|
-| Cold pulls (on-demand sync) | time-to-first-byte on cache miss; concurrent requests for one image share a single upstream sync | [#3463](https://github.com/project-zot/zot/issues/3463) (full image cached before serving; closed, not planned); streaming tracked in [#4323](https://github.com/project-zot/zot/issues/4323) and [PR #3778](https://github.com/project-zot/zot/pull/3778), both open |
+| Cold pulls (on-demand sync) | cache-fill cost, deduplication, offline completeness | tested separately: [cold-pull report](edge-cache-cold-pull-report.md) |
 | Concurrent first pulls during GC (single node) | pulls fail with missing `index.json` | [#4399](https://github.com/project-zot/zot/issues/4399): GC removed repo mid-sync; fix [PR #4383](https://github.com/project-zot/zot/pull/4383) is in v2.1.21, not yet confirmed in production |
 | GC / retention under load | global store lock stalls requests | [#2964](https://github.com/project-zot/zot/issues/2964) (open) |
 | Cold pull under load | client/ingress timeout before first byte | sync continues detached (default `syncTimeout` 3 h); retry joins the in-flight sync (`singleflight`) or hits the cache. **Accepted** until streaming lands |

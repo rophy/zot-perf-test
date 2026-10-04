@@ -1,0 +1,145 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "manifest 200": {
+                    "passes": 4,
+                    "fails": 0,
+                    "name": "manifest 200",
+                    "path": "::manifest 200",
+                    "id": "9901f17e1d3c1538a9d4256439eaa66e"
+                },
+                "all blobs 200 with expected length": {
+                    "name": "all blobs 200 with expected length",
+                    "path": "::all blobs 200 with expected length",
+                    "id": "d5ff40446035b85bd6f96d1600555644",
+                    "passes": 4,
+                    "fails": 0
+                }
+            }
+    },
+    "metrics": {
+        "iterations": {
+            "count": 4,
+            "rate": 5.181197627070034
+        },
+        "http_reqs": {
+            "count": 24,
+            "rate": 31.08718576242021
+        },
+        "data_sent": {
+            "count": 4496,
+            "rate": 5823.666132826719
+        },
+        "image_pull_failed": {
+            "passes": 0,
+            "fails": 4,
+            "value": 0
+        },
+        "checks": {
+            "passes": 8,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_blocked": {
+            "p(99)": 0.8303092599999999,
+            "max": 0.842117,
+            "avg": 0.2637134583333333,
+            "min": 0.002147,
+            "med": 0.121405,
+            "p(95)": 0.7770302999999998
+        },
+        "image_pulls": {
+            "rate": 5.181197627070034,
+            "count": 4
+        },
+        "http_req_duration": {
+            "min": 35.92217,
+            "med": 290.3945025,
+            "p(95)": 624.9542942499999,
+            "p(99)": 645.57003319,
+            "max": 649.95343,
+            "avg": 296.25260741666665
+        },
+        "http_req_receiving": {
+            "avg": 179.31301408333334,
+            "min": 0.049582,
+            "med": 149.5120555,
+            "p(95)": 497.85059964999994,
+            "p(99)": 532.03808245,
+            "max": 540.54019
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 24,
+            "value": 0
+        },
+        "image_pull_bytes": {
+            "rate": 518192765.7815689,
+            "count": 400056360
+        },
+        "http_req_connecting": {
+            "p(99)": 0.72986517,
+            "max": 0.7439,
+            "avg": 0.22673141666666663,
+            "min": 0,
+            "med": 0.0971385,
+            "p(95)": 0.6687716499999998
+        },
+        "data_received": {
+            "count": 400068388,
+            "rate": 518208345.6428335
+        },
+        "http_req_sending": {
+            "p(95)": 0.07470464999999998,
+            "p(99)": 0.44496090999999977,
+            "max": 0.555035,
+            "avg": 0.05057183333333332,
+            "min": 0.00758,
+            "med": 0.025070000000000002
+        },
+        "iteration_duration": {
+            "avg": 726.27245825,
+            "min": 682.681147,
+            "med": 725.3044179999999,
+            "p(95)": 767.95230155,
+            "p(99)": 771.0303403099999,
+            "max": 771.79985
+        },
+        "http_req_tls_handshaking": {
+            "med": 0,
+            "p(95)": 0,
+            "p(99)": 0,
+            "max": 0,
+            "avg": 0,
+            "min": 0
+        },
+        "http_req_waiting": {
+            "p(95)": 203.9116771999999,
+            "p(99)": 228.49611503,
+            "max": 233.669744,
+            "avg": 116.88902150000001,
+            "min": 35.754882,
+            "med": 115.85941600000001
+        },
+        "http_req_duration{expected_response:true}": {
+            "max": 649.95343,
+            "avg": 296.25260741666665,
+            "min": 35.92217,
+            "med": 290.3945025,
+            "p(95)": 624.9542942499999,
+            "p(99)": 645.57003319
+        },
+        "image_pull_duration": {
+            "avg": 725.75,
+            "min": 682,
+            "med": 725,
+            "p(95)": 767.25,
+            "p(99)": 770.25,
+            "max": 771
+        }
+    }
+}
