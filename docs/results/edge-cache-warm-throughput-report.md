@@ -114,7 +114,9 @@ zot (from source, v2.1.21): serves the blob file directly, but copies through a 
 | NIC | First limit; size to the site's peak pull bandwidth |
 | RAM | ~0.2 GB zot + **page cache ≥ hot image set** |
 | Disk | Catalog capacity; throughput matters only when the hot set exceeds RAM (not measured) |
-| HA | 2 active nodes per site; each sized to carry the peak alone |
+| HA | 2 active standalone nodes per site; each sized to carry the peak alone; LB uses **consistent hashing on the repo path** (see below) |
+
+**HA load balancing.** Only manifest requests trigger on-demand sync (`getImageManifest` → `SyncImage`, `pkg/api/routes.go:2782`); `GetBlob` returns 404 for blobs that aren't stored locally. With per-request or per-connection balancing, a cold pull can get its manifest from node A (which syncs) and a blob from node B (which never saw the image), so the pull fails. Hashing on `/v2/<repo>/` keeps a repo on one node, fetches it from upstream once per site, and splits the cache footprint between the nodes. On failover the other node goes cold for those repos once. Source-IP affinity also works, but every image is cached and fetched twice, and clients behind one NAT IP all land on one node.
 
 Harbor needs roughly an order of magnitude more CPU for the same egress, plus a database with steady write load.
 
@@ -126,9 +128,10 @@ Harbor needs roughly an order of magnitude more CPU for the same egress, plus a 
 
 | Not tested | Relevance | Known zot issues |
 |---|---|---|
-| Cold pulls (on-demand sync) | time-to-first-byte on cache miss | [#3463](https://github.com/project-zot/zot/issues/3463) (full image cached before serving); streaming [PR #3778](https://github.com/project-zot/zot/pull/3778) open |
-| Concurrent first pulls across an HA pair | duplicate upstream fetches | [#4399](https://github.com/project-zot/zot/issues/4399), [#4215](https://github.com/project-zot/zot/issues/4215) |
+| Cold pulls (on-demand sync) | time-to-first-byte on cache miss; concurrent requests for one image share a single upstream sync | [#3463](https://github.com/project-zot/zot/issues/3463) (full image cached before serving); streaming [PR #3778](https://github.com/project-zot/zot/pull/3778) open |
+| Concurrent first pulls during GC (single node) | pulls fail with missing `index.json` | [#4399](https://github.com/project-zot/zot/issues/4399): GC removed repo mid-sync; fix [PR #4383](https://github.com/project-zot/zot/pull/4383) is in v2.1.21, not yet confirmed in production |
 | GC / retention under load | global store lock stalls requests | [#2964](https://github.com/project-zot/zot/issues/2964) (open) |
+| Cold pull under load | client/ingress timeout before first byte | sync continues detached (default `syncTimeout` 3 h); retry joins the in-flight sync (`singleflight`) or hits the cache. **Accepted** until streaming lands |
 | Disk-bound serving, metadata polling, > 64 clients, failover | sizing edge cases | — |
 
 ## 7. Data and reproduction
