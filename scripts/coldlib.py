@@ -61,6 +61,12 @@ def k6_counts(summary):
     }
 
 
+def integrity_from_verify(summary):
+    """Stampede integrity: the cache-only verify pull must have completed exactly once."""
+    count = (summary or {}).get("metrics", {}).get("image_pulls", {}).get("count", 0)
+    return "ok" if count == 1 else "FAIL"
+
+
 def step_row(meta, k6, prom, up, images):
     unique_bytes = sum(i["size"] for i in images)
     unique_blobs = sum(i["layers"] + 1 for i in images)        # + config blob

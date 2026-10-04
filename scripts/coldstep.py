@@ -128,6 +128,13 @@ def recompute(a):
                          {k: old[k] for k in UP_KEYS}, images)
         if "integrity" in old:
             row["integrity"] = old["integrity"]
+        elif old["scenario"] == "stampede":
+            try:
+                with open(f"{d}/verify.json") as f:
+                    verify = json.load(f)
+            except (OSError, ValueError):
+                verify = None
+            row["integrity"] = c.integrity_from_verify(verify)
         with open(path, "w") as f:
             json.dump(row, f, indent=2)
         rows.append(row)
@@ -141,6 +148,8 @@ def recompute(a):
 def append(a):
     with open(a.row) as f:
         row = {**json.load(f), "integrity": a.integrity}
+    with open(a.row, "w") as f:
+        json.dump(row, f, indent=2)
     new = not os.path.exists(a.log)
     with open(a.log, "a") as f:
         if new:

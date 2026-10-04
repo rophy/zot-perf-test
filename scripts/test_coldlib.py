@@ -120,3 +120,10 @@ def test_markdown_row_iowait_missing_is_na():
     line = c.markdown_row({**_row(), "integrity": "ok"})
     assert _cells(line)[i] == "n/a"
     assert line.count("|") == c.MD_HEADER.splitlines()[-1].count("|")
+
+
+def test_integrity_from_verify():
+    assert c.integrity_from_verify({"metrics": {"image_pulls": {"count": 1}}}) == "ok"
+    assert c.integrity_from_verify({"metrics": {"image_pulls": {"count": 0}}}) == "FAIL"
+    assert c.integrity_from_verify({"metrics": {}}) == "FAIL"
+    assert c.integrity_from_verify(None) == "FAIL"
