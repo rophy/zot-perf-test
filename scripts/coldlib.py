@@ -82,10 +82,10 @@ def step_row(meta, k6, prom, up, images):
 
 MD_HEADER = """# Cold-pull steps (temporary)
 
-VM: multipass, Ubuntu 24.04, 4 vCPU, 8 GiB; k6 on the host; one registry at a time. Window = k6 start until upstream tx and VM disk writes < 1 MB/s for 10 s. CPU = busy VM CPU-seconds over the window.
+VM: multipass, Ubuntu 24.04, 4 vCPU, 8 GiB; k6 on the host; one registry at a time. Window = k6 start until upstream tx and VM disk writes < 1 MB/s for 10 s. CPU = busy VM CPU-seconds over the window, excluding idle, steal and iowait (iowait reported separately).
 
-| time (UTC) | registry | scenario | class | VUs | img idx | images | GB served | k6 s | window s | MB/s | p50 ms | p99 ms | failed | timeouts | 5xx | VM CPU-s | CPU-s/GB | VM cores | mem peak MB | mem avg MB | disk wr MB | disk wr IOPS | up blob GETs | up blob GB | dedup × | cold ok | integrity | host CPU % | run dir | k6 rc |
-|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---|---|"""
+| time (UTC) | registry | scenario | class | VUs | img idx | images | GB served | k6 s | window s | MB/s | p50 ms | p99 ms | failed | timeouts | 5xx | VM CPU-s | CPU-s/GB | VM cores | iowait s | mem peak MB | mem avg MB | disk wr MB | disk wr IOPS | up blob GETs | up blob GB | dedup × | cold ok | integrity | host CPU % | run dir | k6 rc |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---:|---|---|"""
 
 
 def _f(x, p=0):
@@ -101,7 +101,7 @@ def markdown_row(r):
         r["vus"], r["image_index"] if r["scenario"] == "stampede" else "-", r["images"],
         _f(r["gb_served"], 2), r["k6_s"], f'{r["window_s"]}{" (cap)" if r["capped"] else ""}',
         _f(r["mb_per_s"]), _f(r["p50_ms"]), _f(r["p99_ms"]), r["failed"], r["err_timeout"], r["err_5xx"],
-        _f(r["cpu_s"], 1), _f(r["cpu_s_per_gb"], 1), _f(r["vm_cores"], 2), _f(r["mem_peak_mb"]),
+        _f(r["cpu_s"], 1), _f(r["cpu_s_per_gb"], 1), _f(r["vm_cores"], 2), _f(r.get("iowait_s"), 1), _f(r["mem_peak_mb"]),
         _f(r["mem_avg_mb"]), _f(r["disk_wr_mb"]), _f(r["disk_wr_ops"] / window if r["disk_wr_ops"] is not None else None),
         r["blob_gets"], _f(r["blob_bytes"] / 1e9, 2), _f(r["dedup_x"], 2), "yes" if r["cold_ok"] else "NO",
         r.get("integrity", "-"), _f(r["host_cpu_pct"]), r["run_dir"].removeprefix("results/"),

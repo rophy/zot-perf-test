@@ -96,3 +96,27 @@ def test_markdown_row_k6_rc_cell():
     bad = c.markdown_row({**_row(summary_missing=True), "integrity": "ok"})
     assert bad.rstrip(" |").endswith("| x | FAIL")
     assert bad.count("|") == c.MD_HEADER.splitlines()[-1].count("|")
+
+
+def _cells(line):
+    return [x.strip() for x in line.strip().strip("|").split(" | ")]
+
+
+def _header_cells():
+    return _cells(c.MD_HEADER.splitlines()[-2])
+
+
+def test_markdown_row_iowait_column_after_vm_cores():
+    h = _header_cells()
+    i = h.index("iowait s")
+    assert h[i - 1] == "VM cores"
+    line = c.markdown_row({**_row(), "iowait_s": 12.34, "integrity": "ok"})
+    assert _cells(line)[i] == "12.3"
+
+
+def test_markdown_row_iowait_missing_is_na():
+    h = _header_cells()
+    i = h.index("iowait s")
+    line = c.markdown_row({**_row(), "integrity": "ok"})
+    assert _cells(line)[i] == "n/a"
+    assert line.count("|") == c.MD_HEADER.splitlines()[-1].count("|")

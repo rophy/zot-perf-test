@@ -12,7 +12,8 @@ import coldlib as c
 
 PROM = os.environ.get("PROM_URL", "http://localhost:19190")
 UPSTREAM = os.environ.get("UPSTREAM_CONTAINER", "ccdn-bench-upstream-1")
-Q_CPU = 'sum(node_cpu_seconds_total{role="vm",mode!~"idle|steal"})'
+Q_CPU = 'sum(node_cpu_seconds_total{role="vm",mode!~"idle|steal|iowait"})'
+Q_IOWAIT = 'sum(node_cpu_seconds_total{role="vm",mode="iowait"})'
 Q_DISK_BYTES = 'sum(node_disk_written_bytes_total{role="vm",device="sda"})'
 Q_DISK_OPS = 'sum(node_disk_writes_completed_total{role="vm",device="sda"})'
 Q_MEM = '(node_memory_MemTotal_bytes{role="vm"} - node_memory_MemAvailable_bytes{role="vm"}) / 1e6'
@@ -58,26 +59,31 @@ def upstream_log(t0, t1):
     return (p.stdout + p.stderr).splitlines(keepends=True)
 
 
+def prom_figures(start, end, k6_end):
+    window = end - start
+    k6_s = max(k6_end - start, 15)
+    return {
+        "cpu_s": delta(Q_CPU, start, end),
+        "iowait_s": delta(Q_IOWAIT, start, end),
+        "disk_wr_mb": None if (d := delta(Q_DISK_BYTES, start, end)) is None else d / 1e6,
+        "disk_wr_ops": delta(Q_DISK_OPS, start, end),
+        "mem_peak_mb": prom(f"max_over_time(({Q_MEM})[{window}s:5s])", end),
+        "mem_avg_mb": prom(f"avg_over_time(({Q_MEM})[{window}s:5s])", end),
+        "host_cpu_pct": prom(f'100 * (1 - avg(rate(node_cpu_seconds_total{{role="host",mode="idle"}}[{k6_s}s])))',
+                             k6_end),
+    }
+
+
 def collect(a):
     end, capped = wait_quiet(a.k6_end)
     end = int(end) + 1
-    window = end - a.start
-    k6_s = max(a.k6_end - a.start, 15)
     summary_missing = False
     try:
         with open(f"{a.run_dir}/summary.json") as f:
             summary = json.load(f)
     except FileNotFoundError:
         summary, summary_missing = {"metrics": {}}, True
-    prom_d = {
-        "cpu_s": delta(Q_CPU, a.start, end),
-        "disk_wr_mb": None if (d := delta(Q_DISK_BYTES, a.start, end)) is None else d / 1e6,
-        "disk_wr_ops": delta(Q_DISK_OPS, a.start, end),
-        "mem_peak_mb": prom(f"max_over_time(({Q_MEM})[{window}s:5s])", end),
-        "mem_avg_mb": prom(f"avg_over_time(({Q_MEM})[{window}s:5s])", end),
-        "host_cpu_pct": prom(f'100 * (1 - avg(rate(node_cpu_seconds_total{{role="host",mode="idle"}}[{k6_s}s])))',
-                             a.k6_end),
-    }
+    prom_d = prom_figures(a.start, end, a.k6_end)
     lines = upstream_log(a.start, end)
     with open(f"{a.run_dir}/upstream.log", "w") as f:
         f.writelines(lines)
@@ -85,12 +91,51 @@ def collect(a):
         images = c.select_images(json.load(f)["images"], a.cls, a.scenario, a.pool_limit, a.image_index)
     meta = {"registry": a.registry, "scenario": a.scenario, "class": a.cls, "vus": a.vus,
             "image_index": a.image_index, "start": a.start, "k6_end": a.k6_end, "end": end,
-            "capped": capped, "k6_exit": a.k6_exit, "summary_missing": summary_missing, "run_dir": a.run_dir}
+            "capped": capped, "k6_exit": a.k6_exit, "summary_missing": summary_missing, "run_dir": a.run_dir,
+            "pool_limit": a.pool_limit}
     row = c.step_row(meta, c.k6_counts(summary), prom_d, c.parse_access_log(lines), images)
     with open(f"{a.run_dir}/row.json", "w") as f:
         json.dump(row, f, indent=2)
     print(json.dumps({k: row[k] for k in ("gb_served", "window_s", "cpu_s_per_gb", "vm_cores",
                                           "mem_peak_mb", "dedup_x", "cold_ok", "failed")}))
+
+
+META_KEYS = ("registry", "scenario", "class", "vus", "image_index", "start", "k6_end", "end", "capped", "k6_exit",
+             "summary_missing", "run_dir", "pool_limit")
+UP_KEYS = ("blob_gets", "blob_bytes", "blob_heads", "manifest_gets", "manifest_heads")
+
+
+def recompute(a):
+    rows = []
+    for d in a.run_dirs:
+        path = f"{d}/row.json"
+        if not os.path.exists(path):
+            print(f"{d}: no row.json, skipped")
+            continue
+        with open(path) as f:
+            old = json.load(f)
+        meta = {k: old[k] for k in META_KEYS if k in old}
+        meta.setdefault("pool_limit", 0)
+        try:
+            with open(f"{d}/summary.json") as f:
+                summary = json.load(f)
+        except FileNotFoundError:
+            summary = {"metrics": {}}
+        with open(f"bench/vm/generated/cold-{old['registry']}.json") as f:
+            images = c.select_images(json.load(f)["images"], old["class"], old["scenario"],
+                                     meta["pool_limit"], old["image_index"])
+        row = c.step_row(meta, c.k6_counts(summary), prom_figures(old["start"], old["end"], old["k6_end"]),
+                         {k: old[k] for k in UP_KEYS}, images)
+        if "integrity" in old:
+            row["integrity"] = old["integrity"]
+        with open(path, "w") as f:
+            json.dump(row, f, indent=2)
+        rows.append(row)
+        print(f"{d}: cpu_s {c._f(old.get('cpu_s'), 1)} -> {c._f(row['cpu_s'], 1)}")
+    with open(a.log, "w") as f:
+        f.write(c.MD_HEADER + "\n")
+        for r in rows:
+            f.write(c.markdown_row(r) + "\n")
 
 
 def append(a):
@@ -116,8 +161,11 @@ def main():
     q.add_argument("--row", required=True)
     q.add_argument("--integrity", default="-")
     q.add_argument("--log", required=True)
+    r = sub.add_parser("recompute")
+    r.add_argument("--log", required=True)
+    r.add_argument("run_dirs", nargs="+")
     a = ap.parse_args()
-    collect(a) if a.cmd == "collect" else append(a)
+    {"collect": collect, "append": append, "recompute": recompute}[a.cmd](a)
 
 
 if __name__ == "__main__":
