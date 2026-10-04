@@ -57,3 +57,11 @@ export function errorCategory(status) {
   if (status >= 500) return '5xx';
   return 'other';
 }
+
+// A blob response is OK when it is a 200 without a k6 transfer error and its Content-Length
+// matches the descriptor size, or is absent (chunked streaming, e.g. Harbor proxy-cache cold fetch).
+export function blobOK(status, contentLength, errorCode, expectedSize) {
+  if (status !== 200 || errorCode) return false;
+  if (contentLength === undefined || contentLength === null || contentLength === '') return true;
+  return parseInt(contentLength, 10) === expectedSize;
+}

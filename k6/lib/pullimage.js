@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { blobDescriptors, parseBearerChallenge, tokenURL } from './select.js';
+import { blobDescriptors, parseBearerChallenge, tokenURL, blobOK } from './select.js';
 
 const ACCEPT = [
   'application/vnd.oci.image.manifest.v1+json',
@@ -34,8 +34,7 @@ export function pullImage(registry, img, tags, timeouts = { manifest: '60s', blo
     params: { headers: headers.Authorization ? { Authorization: headers.Authorization } : {},
               tags: { ...tags, kind: 'blob' }, timeout: timeouts.blob },
   })));
-  const bad = responses.find((r, i) =>
-    r.status !== 200 || parseInt(r.headers['Content-Length'], 10) !== blobs[i].size);
+  const bad = responses.find((r, i) => !blobOK(r.status, r.headers['Content-Length'], r.error_code, blobs[i].size));
   check(responses, { 'all blobs 200 with expected length': () => !bad });
   return bad ? { ok: false, status: bad.status } : { ok: true, status: 200 };
 }

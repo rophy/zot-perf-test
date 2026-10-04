@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { imagesForClass, pickImage, blobDescriptors, MIX_WEIGHTS, parseBearerChallenge, tokenURL, coldPick, errorCategory } from './select.js';
+import { imagesForClass, pickImage, blobDescriptors, MIX_WEIGHTS, parseBearerChallenge, tokenURL, coldPick, errorCategory, blobOK } from './select.js';
 
 const imgs = [
   { class: '10MB', repo: 'a' }, { class: '10MB', repo: 'b' },
@@ -75,4 +75,20 @@ test('errorCategory buckets HTTP statuses', () => {
   assert.equal(errorCategory(404), '4xx');
   assert.equal(errorCategory(503), '5xx');
   assert.equal(errorCategory(200), 'other');
+});
+
+test('blobOK accepts 200 with matching Content-Length', () => {
+  assert.equal(blobOK(200, '100', 0, 100), true);
+});
+test('blobOK accepts 200 chunked (no Content-Length) without error', () => {
+  assert.equal(blobOK(200, undefined, 0, 100), true);
+});
+test('blobOK rejects a mismatched Content-Length', () => {
+  assert.equal(blobOK(200, '99', 0, 100), false);
+});
+test('blobOK rejects chunked response with a transfer error', () => {
+  assert.equal(blobOK(200, undefined, 1000, 100), false);
+});
+test('blobOK rejects non-200', () => {
+  assert.equal(blobOK(404, '100', 0, 100), false);
 });
